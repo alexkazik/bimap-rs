@@ -30,16 +30,16 @@
 //! elements.insert("neodymium", "Nd");
 //!
 //! // retrieve chemical symbol by name (left to right)
-//! assert_eq!(elements.get_by_left(&"bromine"), Some(&"Br"));
-//! assert_eq!(elements.get_by_left(&"oxygen"), None);
+//! assert_eq!(elements.get_key_by_left(&"bromine"), Some(&"Br"));
+//! assert_eq!(elements.get_key_by_left(&"oxygen"), None);
 //!
 //! // retrieve name by chemical symbol (right to left)
-//! assert_eq!(elements.get_by_right(&"C"), Some(&"carbon"));
-//! assert_eq!(elements.get_by_right(&"Al"), None);
+//! assert_eq!(elements.get_key_by_right(&"C"), Some(&"carbon"));
+//! assert_eq!(elements.get_key_by_right(&"Al"), None);
 //!
 //! // check membership
-//! assert!(elements.contains_left(&"hydrogen"));
-//! assert!(!elements.contains_right(&"He"));
+//! assert!(elements.contains_key_by_left(&"hydrogen"));
+//! assert!(!elements.contains_key_by_right(&"He"));
 //!
 //! // remove elements
 //! assert_eq!(
@@ -146,7 +146,7 @@
 //!
 //! // foo2 is in the bimap
 //! assert_eq!(
-//!     bimap.get_by_right(&100).unwrap().unimportant,
+//!     bimap.get_key_by_right(&100).unwrap().unimportant,
 //!     foo2.unimportant
 //! );
 //! ```
@@ -165,8 +165,8 @@
 //!
 //! // ('b', 2) was overwritten by ('c', 2)
 //! assert_eq!(bimap.len(), 2);
-//! assert_eq!(bimap.get_by_left(&'b'), None);
-//! assert_eq!(bimap.get_by_left(&'c'), Some(&2));
+//! assert_eq!(bimap.get_key_by_left(&'b'), None);
+//! assert_eq!(bimap.get_key_by_left(&'c'), Some(&2));
 //! ```
 //!
 //! ## `no_std` compatibility

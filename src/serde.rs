@@ -109,8 +109,8 @@
 //! // we can still demonstrate that certain properties of the bimap are still
 //! // in a known state, but this shouldn't be relied upon
 //! assert_eq!(bimap.len(), 2);
-//! assert_eq!(bimap.get_by_left(&'A'), Some(&1));
-//! assert!(bimap.get_by_left(&'B') == Some(&2) || bimap.get_by_left(&'C') == Some(&2))
+//! assert_eq!(bimap.get_key_by_left(&'A'), Some(&1));
+//! assert!(bimap.get_key_by_left(&'B') == Some(&2) || bimap.get_key_by_left(&'C') == Some(&2))
 //! ```
 //!
 //! The reverse is also possible: bimaps may be serialized and then

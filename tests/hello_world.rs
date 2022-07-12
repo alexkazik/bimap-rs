@@ -9,6 +9,12 @@ fn main() {
     // some letters omitted for brevity
     alphabet.insert('Z', 26);
 
-    println!("A is at position {}", alphabet.get_by_left(&'A').unwrap());
-    println!("{} is at position 26", alphabet.get_by_right(&26).unwrap());
+    println!(
+        "A is at position {}",
+        alphabet.get_key_by_left(&'A').unwrap()
+    );
+    println!(
+        "{} is at position 26",
+        alphabet.get_key_by_right(&26).unwrap()
+    );
 }

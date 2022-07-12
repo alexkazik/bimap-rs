@@ -177,12 +177,12 @@ where
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
     ///
-    /// for char_value in bimap.left_values() {
+    /// for char_value in bimap.keys_left() {
     ///     println!("{}", char_value);
     /// }
     /// ```
-    pub fn left_values(&self) -> LeftValues<'_, L, R> {
-        LeftValues {
+    pub fn keys_left(&self) -> LeftKeys<'_, L, R> {
+        LeftKeys {
             inner: self.left2right.iter(),
         }
     }
@@ -202,12 +202,12 @@ where
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
     ///
-    /// for int_value in bimap.right_values() {
+    /// for int_value in bimap.keys_right() {
     ///     println!("{}", int_value);
     /// }
     /// ```
-    pub fn right_values(&self) -> RightValues<'_, L, R> {
-        RightValues {
+    pub fn keys_right(&self) -> RightKeys<'_, L, R> {
+        RightKeys {
             inner: self.right2left.iter(),
         }
     }
@@ -349,10 +349,10 @@ where
     ///
     /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
-    /// assert_eq!(bimap.get_by_left(&'a'), Some(&1));
-    /// assert_eq!(bimap.get_by_left(&'z'), None);
+    /// assert_eq!(bimap.get_key_by_left(&'a'), Some(&1));
+    /// assert_eq!(bimap.get_key_by_left(&'z'), None);
     /// ```
-    pub fn get_by_left<Q>(&self, left: &Q) -> Option<&R>
+    pub fn get_key_by_left<Q>(&self, left: &Q) -> Option<&R>
     where
         L: Borrow<Q>,
         Q: Eq + Hash + ?Sized,
@@ -373,10 +373,10 @@ where
     ///
     /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
-    /// assert_eq!(bimap.get_by_right(&1), Some(&'a'));
-    /// assert_eq!(bimap.get_by_right(&2), None);
+    /// assert_eq!(bimap.get_key_by_right(&1), Some(&'a'));
+    /// assert_eq!(bimap.get_key_by_right(&2), None);
     /// ```
-    pub fn get_by_right<Q>(&self, right: &Q) -> Option<&L>
+    pub fn get_key_by_right<Q>(&self, right: &Q) -> Option<&L>
     where
         R: Borrow<Q>,
         Q: Eq + Hash + ?Sized,
@@ -397,10 +397,10 @@ where
     ///
     /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
-    /// assert!(bimap.contains_left(&'a'));
-    /// assert!(!bimap.contains_left(&'b'));
+    /// assert!(bimap.contains_key_by_left(&'a'));
+    /// assert!(!bimap.contains_key_by_left(&'b'));
     /// ```
-    pub fn contains_left<Q>(&self, left: &Q) -> bool
+    pub fn contains_key_by_left<Q>(&self, left: &Q) -> bool
     where
         L: Borrow<Q>,
         Q: Eq + Hash + ?Sized,
@@ -421,10 +421,10 @@ where
     ///
     /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
-    /// assert!(bimap.contains_right(&1));
-    /// assert!(!bimap.contains_right(&2));
+    /// assert!(bimap.contains_key_by_right(&1));
+    /// assert!(!bimap.contains_key_by_right(&2));
     /// ```
-    pub fn contains_right<Q>(&self, right: &Q) -> bool
+    pub fn contains_key_by_right<Q>(&self, right: &Q) -> bool
     where
         R: Borrow<Q>,
         Q: Eq + Hash + ?Sized,
@@ -593,7 +593,7 @@ where
     /// assert_eq!(bimap.insert_no_overwrite('c', 2), Err(('c', 2)));
     /// ```
     pub fn insert_no_overwrite(&mut self, left: L, right: R) -> Result<(), (L, R)> {
-        if self.contains_left(&left) || self.contains_right(&right) {
+        if self.contains_key_by_left(&left) || self.contains_key_by_right(&right) {
             Err((left, right))
         } else {
             self.insert_unchecked(left, right);
@@ -617,9 +617,9 @@ where
     /// bimap.insert('c', 3);
     /// bimap.retain(|&l, &r| r >= 2);
     /// assert_eq!(bimap.len(), 2);
-    /// assert_eq!(bimap.get_by_left(&'b'), Some(&2));
-    /// assert_eq!(bimap.get_by_left(&'c'), Some(&3));
-    /// assert_eq!(bimap.get_by_left(&'a'), None);
+    /// assert_eq!(bimap.get_key_by_left(&'b'), Some(&2));
+    /// assert_eq!(bimap.get_key_by_left(&'c'), Some(&3));
+    /// assert_eq!(bimap.get_key_by_left(&'a'), None);
     /// ```
     pub fn retain<F>(&mut self, f: F)
     where
@@ -858,15 +858,15 @@ impl<'a, L, R> Iterator for Iter<'a, L, R> {
 /// This struct is created by the [`left_values`] method of `BiHashSet`.
 ///
 /// [`left_values`]: BiHashSet::left_values
-pub struct LeftValues<'a, L, R> {
+pub struct LeftKeys<'a, L, R> {
     inner: hash_map::Iter<'a, Ref<L>, Ref<R>>,
 }
 
-impl<'a, L, R> ExactSizeIterator for LeftValues<'a, L, R> {}
+impl<'a, L, R> ExactSizeIterator for LeftKeys<'a, L, R> {}
 
-impl<'a, L, R> FusedIterator for LeftValues<'a, L, R> {}
+impl<'a, L, R> FusedIterator for LeftKeys<'a, L, R> {}
 
-impl<'a, L, R> Iterator for LeftValues<'a, L, R> {
+impl<'a, L, R> Iterator for LeftKeys<'a, L, R> {
     type Item = &'a L;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -883,15 +883,15 @@ impl<'a, L, R> Iterator for LeftValues<'a, L, R> {
 /// This struct is created by the [`right_values`] method of `BiHashSet`.
 ///
 /// [`right_values`]: BiHashSet::right_values
-pub struct RightValues<'a, L, R> {
+pub struct RightKeys<'a, L, R> {
     inner: hash_map::Iter<'a, Ref<R>, Ref<L>>,
 }
 
-impl<'a, L, R> ExactSizeIterator for RightValues<'a, L, R> {}
+impl<'a, L, R> ExactSizeIterator for RightKeys<'a, L, R> {}
 
-impl<'a, L, R> FusedIterator for RightValues<'a, L, R> {}
+impl<'a, L, R> FusedIterator for RightKeys<'a, L, R> {}
 
-impl<'a, L, R> Iterator for RightValues<'a, L, R> {
+impl<'a, L, R> Iterator for RightKeys<'a, L, R> {
     type Item = &'a R;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -1056,7 +1056,7 @@ mod tests {
         bimap.insert('a', 3);
         bimap.insert('b', 2);
         bimap.insert('c', 1);
-        let mut left_values = bimap.left_values().cloned().collect::<Vec<_>>();
+        let mut left_values = bimap.keys_left().cloned().collect::<Vec<_>>();
         left_values.sort();
         assert_eq!(left_values, vec!['a', 'b', 'c'])
     }
@@ -1067,7 +1067,7 @@ mod tests {
         bimap.insert('a', 3);
         bimap.insert('b', 2);
         bimap.insert('c', 1);
-        let mut right_values = bimap.right_values().cloned().collect::<Vec<_>>();
+        let mut right_values = bimap.keys_right().cloned().collect::<Vec<_>>();
         right_values.sort();
         assert_eq!(right_values, vec![1, 2, 3])
     }
@@ -1084,8 +1084,8 @@ mod tests {
         let s_right = hash_map::RandomState::new();
         let mut bimap = BiHashSet::<char, i32>::with_hashers(s_left, s_right);
         bimap.insert('a', 42);
-        assert_eq!(Some(&'a'), bimap.get_by_right(&42));
-        assert_eq!(Some(&42), bimap.get_by_left(&'a'));
+        assert_eq!(Some(&'a'), bimap.get_key_by_right(&42));
+        assert_eq!(Some(&42), bimap.get_key_by_left(&'a'));
     }
 
     #[test]
@@ -1160,17 +1160,17 @@ mod tests {
     fn get_contains() {
         let bimap = vec![('a', 1)].into_iter().collect::<BiHashSet<_, _>>();
 
-        assert_eq!(bimap.get_by_left(&'a'), Some(&1));
-        assert!(bimap.contains_left(&'a'));
+        assert_eq!(bimap.get_key_by_left(&'a'), Some(&1));
+        assert!(bimap.contains_key_by_left(&'a'));
 
-        assert_eq!(bimap.get_by_left(&'b'), None);
-        assert!(!bimap.contains_left(&'b'));
+        assert_eq!(bimap.get_key_by_left(&'b'), None);
+        assert!(!bimap.contains_key_by_left(&'b'));
 
-        assert_eq!(bimap.get_by_right(&1), Some(&'a'));
-        assert!(bimap.contains_right(&1));
+        assert_eq!(bimap.get_key_by_right(&1), Some(&'a'));
+        assert!(bimap.contains_key_by_right(&1));
 
-        assert_eq!(bimap.get_by_right(&2), None);
-        assert!(!bimap.contains_right(&2));
+        assert_eq!(bimap.get_key_by_right(&2), None);
+        assert!(!bimap.contains_key_by_right(&2));
     }
 
     #[test]
