@@ -205,7 +205,11 @@ pub mod btree;
 pub use btree::BiBTreeMap;
 
 #[cfg(feature = "std")]
+pub mod hash_map;
+#[cfg(feature = "std")]
 pub mod hash_set;
+#[cfg(feature = "std")]
+pub use hash_map::BiHashMap;
 #[cfg(feature = "std")]
 pub use hash_set::BiHashSet;
 
@@ -265,6 +269,64 @@ impl<L, R> Overwritten<L, R> {
     /// ```
     pub fn did_overwrite(&self) -> bool {
         !matches!(self, Overwritten::Neither)
+    }
+}
+
+/// The previous left-right pairs, if any, that were overwritten by a call to
+/// the [`insert`](BiHashSet::insert) method of a bimap.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum OverwrittenMap<L, R, T> {
+    /// Neither the left nor the right value previously existed in the bimap.
+    Neither,
+
+    /// The left value existed in the bimap, and the previous left-right pair is
+    /// returned.
+    Left(L, R, T),
+
+    /// The right value existed in the bimap, and the previous left-right pair
+    /// is returned.
+    Right(L, R, T),
+
+    /// The left-right pair already existed in the bimap, and the previous
+    /// left-right pair is returned.
+    Pair(L, R, T),
+
+    /// Both the left and the right value existed in the bimap, but as part of
+    /// separate pairs. The first tuple is the left-right pair of the
+    /// previous left value, and the second is the left-right pair of the
+    /// previous right value.
+    Both((L, R, T), (L, R, T)),
+}
+
+impl<L, R, T> OverwrittenMap<L, R, T> {
+    /// Returns a boolean indicating if the `Overwritten` variant implies any
+    /// values were overwritten.
+    ///
+    /// This method is `true` for all variants other than `Neither`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bimap::{BiMap, Overwritten};
+    ///
+    /// let mut bimap = BiMap::new();
+    /// assert!(!bimap.insert('a', 1).did_overwrite());
+    /// assert!(bimap.insert('a', 2).did_overwrite());
+    /// ```
+    pub fn did_overwrite(&self) -> bool {
+        !matches!(self, OverwrittenMap::Neither)
+    }
+}
+
+impl<L, R, T> From<OverwrittenMap<L, R, T>> for Overwritten<L, R> {
+    fn from(o: OverwrittenMap<L, R, T>) -> Self {
+        match o {
+            OverwrittenMap::Neither => Overwritten::Neither,
+            OverwrittenMap::Left(l, r, _) => Overwritten::Left(l, r),
+            OverwrittenMap::Right(l, r, _) => Overwritten::Right(l, r),
+            OverwrittenMap::Pair(l, r, _) => Overwritten::Pair(l, r),
+            OverwrittenMap::Both((al, ar, _), (bl, br, _)) => Overwritten::Both((al, ar), (bl, br)),
+        }
     }
 }
 

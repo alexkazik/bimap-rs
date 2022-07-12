@@ -144,7 +144,7 @@
 //! [`BiBTreeMap`]: crate::BiBTreeMap
 //! [`HashMap`]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
 
-use crate::{BiBTreeMap, BiHashSet};
+use crate::{BiBTreeMap, BiHashMap, BiHashSet};
 use serde::{
     de::{MapAccess, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
@@ -217,6 +217,70 @@ where
     }
 }
 
+/// Serializer for `BiHashMap`
+impl<L, R, T, LS, RS> Serialize for BiHashMap<L, R, T, LS, RS>
+where
+    L: Serialize + Eq + Hash,
+    R: Serialize + Eq + Hash,
+    T: Serialize,
+    LS: BuildHasher + Default,
+    RS: BuildHasher + Default,
+{
+    fn serialize<S: Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
+        ser.collect_map(self.iter().map(|(l, r, v)| (l, (r, v))))
+    }
+}
+
+/// Visitor to construct `BiHashMap` from serialized map entries
+struct BiHashMapVisitor<L, R, T, LS, RS> {
+    marker: PhantomData<BiHashMap<L, R, T, LS, RS>>,
+}
+
+impl<'de, L, R, T, LS, RS> Visitor<'de> for BiHashMapVisitor<L, R, T, LS, RS>
+where
+    L: Deserialize<'de> + Eq + Hash,
+    R: Deserialize<'de> + Eq + Hash,
+    T: Deserialize<'de>,
+    LS: BuildHasher + Default,
+    RS: BuildHasher + Default,
+{
+    fn expecting(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "a map")
+    }
+
+    type Value = BiHashMap<L, R, T, LS, RS>;
+    fn visit_map<A: MapAccess<'de>>(self, mut entries: A) -> Result<Self::Value, A::Error> {
+        let mut map = match entries.size_hint() {
+            Some(s) => BiHashMap::<L, R, T, LS, RS>::with_capacity_and_hashers(
+                s,
+                LS::default(),
+                RS::default(),
+            ),
+            None => BiHashMap::<L, R, T, LS, RS>::with_hashers(LS::default(), RS::default()),
+        };
+        while let Some((l, (r, v))) = entries.next_entry()? {
+            map.insert(l, r, v);
+        }
+        Ok(map)
+    }
+}
+
+/// Deserializer for `BiHashMap`
+impl<'de, L, R, T, LS, RS> Deserialize<'de> for BiHashMap<L, R, T, LS, RS>
+where
+    L: Deserialize<'de> + Eq + Hash,
+    R: Deserialize<'de> + Eq + Hash,
+    T: Deserialize<'de>,
+    LS: BuildHasher + Default,
+    RS: BuildHasher + Default,
+{
+    fn deserialize<D: Deserializer<'de>>(de: D) -> Result<Self, D::Error> {
+        de.deserialize_map(BiHashMapVisitor::<L, R, T, LS, RS> {
+            marker: PhantomData::default(),
+        })
+    }
+}
+
 /// Serializer for `BiBTreeMap`
 impl<L, R> Serialize for BiBTreeMap<L, R>
 where
@@ -277,6 +341,19 @@ mod tests {
         bimap.insert('a', 1);
         bimap.insert('b', 2);
         bimap.insert('c', 3);
+
+        let json = serde_json::to_string(&bimap).unwrap();
+        let bimap2 = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(bimap, bimap2);
+    }
+
+    #[test]
+    fn serde_hash_map() {
+        let mut bimap = BiHashMap::new();
+        bimap.insert('a', 1, 7);
+        bimap.insert('b', 2, 8);
+        bimap.insert('c', 3, 9);
 
         let json = serde_json::to_string(&bimap).unwrap();
         let bimap2 = serde_json::from_str(&json).unwrap();
