@@ -6,13 +6,13 @@
 //! [`HashMap`] or [`BTreeMap`], where every key is associated with exactly one
 //! value but a value can be associated with more than one key.
 //!
-//! This crate provides two kinds of bimap: a [`BiHashMap`] and a
+//! This crate provides two kinds of bimap: a [`BiHashSet`] and a
 //! [`BiBTreeMap`]. Internally, each one is composed of two maps, one for the
 //! left-to-right direction and one for right-to-left. As such, the big-O
 //! performance of the `get`, `remove`, `insert`, and `contains` methods are the
 //! same as those of the backing map.
 //!
-//! For convenience, the type definition [`BiMap`] corresponds to a `BiHashMap`.
+//! For convenience, the type definition [`BiMap`] corresponds to a `BiHashSet`.
 //! If you're using this crate without the standard library, it instead
 //! corresponds to a `BiBTreeMap`.
 //!
@@ -152,7 +152,7 @@
 //! ```
 //!
 //! Note that the `FromIterator` and `Extend` implementations for both
-//! `BiHashMap` and `BiBTreeMap` use the `insert` method internally, meaning
+//! `BiHashSet` and `BiBTreeMap` use the `insert` method internally, meaning
 //! that values from the original iterator/collection can be silently
 //! overwritten.
 //!
@@ -173,12 +173,12 @@
 //!
 //! This crate can be used without the standard library when the `std` feature
 //! is disabled. If you choose to do this, only `BiBTreeMap` is available, not
-//! `BiHashMap`.
+//! `BiHashSet`.
 //!
 //! ## serde compatibility
 //!
 //! When the `serde` feature is enabled, implementations of `Serialize` and
-//! `Deserialize` are provided for [`BiHashMap`] and [`BiBTreeMap`], allowing
+//! `Deserialize` are provided for [`BiHashSet`] and [`BiBTreeMap`], allowing
 //! them to be serialized or deserialized painlessly. See the [`serde`] module
 //! for examples and more information.
 //!
@@ -187,8 +187,8 @@
 //! https://doc.rust-lang.org/std/collections/index.html#insert-and-complex-keys
 //! [`HashMap`]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
 //! [`BTreeMap`]: https://doc.rust-lang.org/std/collections/struct.BTreeMap.html
-//! [`insert`]: BiHashMap::insert
-//! [`insert_no_overwrite`]: BiHashMap::insert_no_overwrite
+//! [`insert`]: BiHashSet::insert
+//! [`insert_no_overwrite`]: BiHashSet::insert_no_overwrite
 
 // Document everything!
 #![deny(missing_docs)]
@@ -205,14 +205,14 @@ pub mod btree;
 pub use btree::BiBTreeMap;
 
 #[cfg(feature = "std")]
-pub mod hash;
+pub mod hash_set;
 #[cfg(feature = "std")]
-pub use hash::BiHashMap;
+pub use hash_set::BiHashSet;
 
 /// Type definition for convenience and compatibility with older versions of
 /// this crate.
 #[cfg(feature = "std")]
-pub type BiMap<L, R> = BiHashMap<L, R>;
+pub type BiMap<L, R> = BiHashSet<L, R>;
 
 /// Type definition for convenience and compatibility with older versions of
 /// this crate.
@@ -223,7 +223,7 @@ pub type BiMap<L, R> = BiBTreeMap<L, R>;
 pub mod serde;
 
 /// The previous left-right pairs, if any, that were overwritten by a call to
-/// the [`insert`](BiHashMap::insert) method of a bimap.
+/// the [`insert`](BiHashSet::insert) method of a bimap.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Overwritten<L, R> {
     /// Neither the left nor the right value previously existed in the bimap.

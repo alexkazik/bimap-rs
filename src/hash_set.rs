@@ -18,24 +18,24 @@ use std::{
 /// See the [module-level documentation] for more details and examples.
 ///
 /// [module-level documentation]: crate
-pub struct BiHashMap<L, R, LS = hash_map::RandomState, RS = hash_map::RandomState> {
+pub struct BiHashSet<L, R, LS = hash_map::RandomState, RS = hash_map::RandomState> {
     left2right: HashMap<Ref<L>, Ref<R>, LS>,
     right2left: HashMap<Ref<R>, Ref<L>, RS>,
 }
 
-impl<L, R> BiHashMap<L, R, hash_map::RandomState, hash_map::RandomState>
+impl<L, R> BiHashSet<L, R, hash_map::RandomState, hash_map::RandomState>
 where
     L: Eq + Hash,
     R: Eq + Hash,
 {
-    /// Creates an empty `BiHashMap`.
+    /// Creates an empty `BiHashSet`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let bimap = BiHashMap::<char, i32>::new();
+    /// let bimap = BiHashSet::<char, i32>::new();
     /// ```
     pub fn new() -> Self {
         Self {
@@ -44,14 +44,14 @@ where
         }
     }
 
-    /// Creates a new empty `BiHashMap` with the given capacity.
+    /// Creates a new empty `BiHashSet` with the given capacity.
     ///
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let bimap = BiHashMap::<char, i32>::with_capacity(10);
+    /// let bimap = BiHashSet::<char, i32>::with_capacity(10);
     /// assert!(bimap.capacity() >= 10);
     /// ```
     pub fn with_capacity(capacity: usize) -> Self {
@@ -62,7 +62,7 @@ where
     }
 }
 
-impl<L, R, LS, RS> BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
@@ -72,9 +72,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -90,9 +90,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// assert!(bimap.is_empty());
     /// bimap.insert('a', 1);
     /// assert!(!bimap.is_empty());
@@ -103,15 +103,15 @@ where
         self.left2right.is_empty()
     }
 
-    /// Returns a lower bound on the number of left-right pairs the `BiHashMap`
+    /// Returns a lower bound on the number of left-right pairs the `BiHashSet`
     /// can store without reallocating memory.
     ///
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let bimap = BiHashMap::<char, i32>::with_capacity(10);
+    /// let bimap = BiHashSet::<char, i32>::with_capacity(10);
     /// assert!(bimap.capacity() >= 10);
     /// ```
     pub fn capacity(&self) -> usize {
@@ -123,9 +123,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -145,9 +145,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -170,9 +170,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -195,9 +195,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -213,25 +213,25 @@ where
     }
 }
 
-impl<L, R, LS, RS> BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
     LS: BuildHasher,
     RS: BuildHasher,
 {
-    /// Creates a new empty `BiHashMap` using `hash_builder_left` to hash left
+    /// Creates a new empty `BiHashSet` using `hash_builder_left` to hash left
     /// values and `hash_builder_right` to hash right values.
     ///
     /// # Examples
     ///
     /// ```
     /// use std::collections::hash_map::RandomState;
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
     /// let s_left = RandomState::new();
     /// let s_right = RandomState::new();
-    /// let mut bimap = BiHashMap::<char, i32>::with_hashers(s_left, s_right);
+    /// let mut bimap = BiHashSet::<char, i32>::with_hashers(s_left, s_right);
     /// bimap.insert('a', 42);
     /// ```
     pub fn with_hashers(hash_builder_left: LS, hash_builder_right: RS) -> Self {
@@ -241,7 +241,7 @@ where
         }
     }
 
-    /// Creates a new empty `BiHashMap` with the given capacity, using
+    /// Creates a new empty `BiHashSet` with the given capacity, using
     /// `hash_builder_left` to hash left values and `hash_builder_right` to
     /// hash right values.
     ///
@@ -249,11 +249,11 @@ where
     ///
     /// ```
     /// use std::collections::hash_map::RandomState;
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
     /// let s_left = RandomState::new();
     /// let s_right = RandomState::new();
-    /// let bimap = BiHashMap::<char, i32>::with_capacity_and_hashers(10, s_left, s_right);
+    /// let bimap = BiHashSet::<char, i32>::with_capacity_and_hashers(10, s_left, s_right);
     /// assert!(bimap.capacity() >= 10);
     /// ```
     pub fn with_capacity_and_hashers(
@@ -268,7 +268,7 @@ where
     }
 
     /// Reserves capacity for at least `additional` more elements to be inserted
-    /// in the `BiHashMap`. The collection may reserve more space to avoid
+    /// in the `BiHashSet`. The collection may reserve more space to avoid
     /// frequent reallocations.
     ///
     /// # Panics
@@ -278,9 +278,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::<char, i32>::new();
+    /// let mut bimap = BiHashSet::<char, i32>::new();
     /// bimap.reserve(10);
     /// assert!(bimap.capacity() >= 10);
     /// ```
@@ -296,9 +296,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::<char, i32>::with_capacity(100);
+    /// let mut bimap = BiHashSet::<char, i32>::with_capacity(100);
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// assert!(bimap.capacity() >= 100);
@@ -320,9 +320,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::<char, i32>::with_capacity(100);
+    /// let mut bimap = BiHashSet::<char, i32>::with_capacity(100);
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// assert!(bimap.capacity() >= 100);
@@ -345,9 +345,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// assert_eq!(bimap.get_by_left(&'a'), Some(&1));
     /// assert_eq!(bimap.get_by_left(&'z'), None);
@@ -369,9 +369,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// assert_eq!(bimap.get_by_right(&1), Some(&'a'));
     /// assert_eq!(bimap.get_by_right(&2), None);
@@ -393,9 +393,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// assert!(bimap.contains_left(&'a'));
     /// assert!(!bimap.contains_left(&'b'));
@@ -417,9 +417,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// assert!(bimap.contains_right(&1));
     /// assert!(!bimap.contains_right(&2));
@@ -443,9 +443,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -480,9 +480,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -521,9 +521,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::{BiHashMap, Overwritten};
+    /// use bimap::{BiHashSet, Overwritten};
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// assert_eq!(bimap.len(), 0); // {}
     ///
     /// // no values are overwritten.
@@ -584,9 +584,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// assert_eq!(bimap.insert_no_overwrite('a', 1), Ok(()));
     /// assert_eq!(bimap.insert_no_overwrite('b', 2), Ok(()));
     /// assert_eq!(bimap.insert_no_overwrite('a', 3), Err(('a', 3)));
@@ -609,9 +609,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use bimap::BiHashMap;
+    /// use bimap::BiHashSet;
     ///
-    /// let mut bimap = BiHashMap::new();
+    /// let mut bimap = BiHashSet::new();
     /// bimap.insert('a', 1);
     /// bimap.insert('b', 2);
     /// bimap.insert('c', 3);
@@ -646,15 +646,15 @@ where
     }
 }
 
-impl<L, R, LS, RS> Clone for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> Clone for BiHashSet<L, R, LS, RS>
 where
     L: Clone + Eq + Hash,
     R: Clone + Eq + Hash,
     LS: BuildHasher + Clone,
     RS: BuildHasher + Clone,
 {
-    fn clone(&self) -> BiHashMap<L, R, LS, RS> {
-        let mut new_bimap = BiHashMap::with_capacity_and_hashers(
+    fn clone(&self) -> BiHashSet<L, R, LS, RS> {
+        let mut new_bimap = BiHashSet::with_capacity_and_hashers(
             self.capacity(),
             self.left2right.hasher().clone(),
             self.right2left.hasher().clone(),
@@ -666,7 +666,7 @@ where
     }
 }
 
-impl<L, R, LS, RS> fmt::Debug for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> fmt::Debug for BiHashSet<L, R, LS, RS>
 where
     L: fmt::Debug,
     R: fmt::Debug,
@@ -697,22 +697,22 @@ where
     }
 }
 
-impl<L, R, LS, RS> Default for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> Default for BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
     LS: BuildHasher + Default,
     RS: BuildHasher + Default,
 {
-    fn default() -> BiHashMap<L, R, LS, RS> {
-        BiHashMap {
+    fn default() -> BiHashSet<L, R, LS, RS> {
+        BiHashSet {
             left2right: HashMap::default(),
             right2left: HashMap::default(),
         }
     }
 }
 
-impl<L, R, LS, RS> Eq for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> Eq for BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
@@ -721,24 +721,24 @@ where
 {
 }
 
-impl<L, R, LS, RS> FromIterator<(L, R)> for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> FromIterator<(L, R)> for BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
     LS: BuildHasher + Default,
     RS: BuildHasher + Default,
 {
-    fn from_iter<I>(iter: I) -> BiHashMap<L, R, LS, RS>
+    fn from_iter<I>(iter: I) -> BiHashSet<L, R, LS, RS>
     where
         I: IntoIterator<Item = (L, R)>,
     {
         let iter = iter.into_iter();
         let mut bimap = match iter.size_hint() {
             (lower, None) => {
-                BiHashMap::with_capacity_and_hashers(lower, LS::default(), RS::default())
+                BiHashSet::with_capacity_and_hashers(lower, LS::default(), RS::default())
             }
             (_, Some(upper)) => {
-                BiHashMap::with_capacity_and_hashers(upper, LS::default(), RS::default())
+                BiHashSet::with_capacity_and_hashers(upper, LS::default(), RS::default())
             }
         };
         for (left, right) in iter {
@@ -748,7 +748,7 @@ where
     }
 }
 
-impl<'a, L, R, LS, RS> IntoIterator for &'a BiHashMap<L, R, LS, RS>
+impl<'a, L, R, LS, RS> IntoIterator for &'a BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
@@ -761,7 +761,7 @@ where
     }
 }
 
-impl<L, R, LS, RS> IntoIterator for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> IntoIterator for BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
@@ -776,7 +776,7 @@ where
     }
 }
 
-impl<L, R, LS, RS> Extend<(L, R)> for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> Extend<(L, R)> for BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
@@ -790,7 +790,7 @@ where
     }
 }
 
-impl<L, R, LS, RS> PartialEq for BiHashMap<L, R, LS, RS>
+impl<L, R, LS, RS> PartialEq for BiHashSet<L, R, LS, RS>
 where
     L: Eq + Hash,
     R: Eq + Hash,
@@ -802,7 +802,7 @@ where
     }
 }
 
-/// An owning iterator over the left-right pairs in a `BiHashMap`.
+/// An owning iterator over the left-right pairs in a `BiHashSet`.
 pub struct IntoIter<L, R> {
     inner: hash_map::IntoIter<Ref<L>, Ref<R>>,
 }
@@ -828,11 +828,11 @@ impl<L, R> Iterator for IntoIter<L, R> {
     }
 }
 
-/// An iterator over the left-right pairs in a `BiHashMap`.
+/// An iterator over the left-right pairs in a `BiHashSet`.
 ///
-/// This struct is created by the [`iter`] method of `BiHashMap`.
+/// This struct is created by the [`iter`] method of `BiHashSet`.
 ///
-/// [`iter`]: BiHashMap::iter
+/// [`iter`]: BiHashSet::iter
 pub struct Iter<'a, L, R> {
     inner: hash_map::Iter<'a, Ref<L>, Ref<R>>,
 }
@@ -853,11 +853,11 @@ impl<'a, L, R> Iterator for Iter<'a, L, R> {
     }
 }
 
-/// An iterator over the left values in a `BiHashMap`.
+/// An iterator over the left values in a `BiHashSet`.
 ///
-/// This struct is created by the [`left_values`] method of `BiHashMap`.
+/// This struct is created by the [`left_values`] method of `BiHashSet`.
 ///
-/// [`left_values`]: BiHashMap::left_values
+/// [`left_values`]: BiHashSet::left_values
 pub struct LeftValues<'a, L, R> {
     inner: hash_map::Iter<'a, Ref<L>, Ref<R>>,
 }
@@ -878,11 +878,11 @@ impl<'a, L, R> Iterator for LeftValues<'a, L, R> {
     }
 }
 
-/// An iterator over the right values in a `BiHashMap`.
+/// An iterator over the right values in a `BiHashSet`.
 ///
-/// This struct is created by the [`right_values`] method of `BiHashMap`.
+/// This struct is created by the [`right_values`] method of `BiHashSet`.
 ///
-/// [`right_values`]: BiHashMap::right_values
+/// [`right_values`]: BiHashSet::right_values
 pub struct RightValues<'a, L, R> {
     inner: hash_map::Iter<'a, Ref<R>, Ref<L>>,
 }
@@ -905,7 +905,7 @@ impl<'a, L, R> Iterator for RightValues<'a, L, R> {
 
 // safe because internal Rcs are not exposed by the api and the reference counts
 // only change in methods with &mut self
-unsafe impl<L, R, LS, RS> Send for BiHashMap<L, R, LS, RS>
+unsafe impl<L, R, LS, RS> Send for BiHashSet<L, R, LS, RS>
 where
     L: Send,
     R: Send,
@@ -913,7 +913,7 @@ where
     RS: Send,
 {
 }
-unsafe impl<L, R, LS, RS> Sync for BiHashMap<L, R, LS, RS>
+unsafe impl<L, R, LS, RS> Sync for BiHashSet<L, R, LS, RS>
 where
     L: Sync,
     R: Sync,
@@ -928,7 +928,7 @@ mod tests {
 
     #[test]
     fn clone() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 1);
         bimap.insert('b', 2);
         let bimap2 = bimap.clone();
@@ -937,7 +937,7 @@ mod tests {
 
     #[test]
     fn deep_clone() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 1);
         bimap.insert('b', 2);
         let mut bimap2 = bimap.clone();
@@ -951,7 +951,7 @@ mod tests {
 
     #[test]
     fn debug() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         assert_eq!("{}", format!("{:?}", bimap));
 
         bimap.insert('a', 1);
@@ -966,19 +966,19 @@ mod tests {
 
     #[test]
     fn default() {
-        let _ = BiHashMap::<char, i32>::default();
+        let _ = BiHashSet::<char, i32>::default();
     }
 
     #[test]
     fn eq() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         assert_eq!(bimap, bimap);
         bimap.insert('a', 1);
         assert_eq!(bimap, bimap);
         bimap.insert('b', 2);
         assert_eq!(bimap, bimap);
 
-        let mut bimap2 = BiHashMap::new();
+        let mut bimap2 = BiHashSet::new();
         assert_ne!(bimap, bimap2);
         bimap2.insert('a', 1);
         assert_ne!(bimap, bimap2);
@@ -990,7 +990,7 @@ mod tests {
 
     #[test]
     fn from_iter() {
-        let bimap = BiHashMap::from_iter(vec![
+        let bimap = BiHashSet::from_iter(vec![
             ('a', 1),
             ('b', 2),
             ('c', 3),
@@ -998,7 +998,7 @@ mod tests {
             ('a', 4),
             ('b', 3),
         ]);
-        let mut bimap2 = BiHashMap::new();
+        let mut bimap2 = BiHashSet::new();
         bimap2.insert('a', 4);
         bimap2.insert('b', 3);
         assert_eq!(bimap, bimap2);
@@ -1006,7 +1006,7 @@ mod tests {
 
     #[test]
     fn into_iter() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 3);
         bimap.insert('b', 2);
         bimap.insert('c', 1);
@@ -1017,7 +1017,7 @@ mod tests {
 
     #[test]
     fn into_iter_ref() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 3);
         bimap.insert('b', 2);
         bimap.insert('c', 1);
@@ -1028,11 +1028,11 @@ mod tests {
 
     #[test]
     fn extend() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 3);
         bimap.insert('b', 2);
         bimap.extend(vec![('c', 3), ('b', 1), ('a', 4)]);
-        let mut bimap2 = BiHashMap::new();
+        let mut bimap2 = BiHashSet::new();
         bimap2.insert('a', 4);
         bimap2.insert('b', 1);
         bimap2.insert('c', 3);
@@ -1041,7 +1041,7 @@ mod tests {
 
     #[test]
     fn iter() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 1);
         bimap.insert('b', 2);
         bimap.insert('c', 3);
@@ -1052,7 +1052,7 @@ mod tests {
 
     #[test]
     fn left_values() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 3);
         bimap.insert('b', 2);
         bimap.insert('c', 1);
@@ -1063,7 +1063,7 @@ mod tests {
 
     #[test]
     fn right_values() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 3);
         bimap.insert('b', 2);
         bimap.insert('c', 1);
@@ -1074,7 +1074,7 @@ mod tests {
 
     #[test]
     fn capacity() {
-        let bimap = BiHashMap::<char, i32>::with_capacity(10);
+        let bimap = BiHashSet::<char, i32>::with_capacity(10);
         assert!(bimap.capacity() >= 10);
     }
 
@@ -1082,7 +1082,7 @@ mod tests {
     fn with_hashers() {
         let s_left = hash_map::RandomState::new();
         let s_right = hash_map::RandomState::new();
-        let mut bimap = BiHashMap::<char, i32>::with_hashers(s_left, s_right);
+        let mut bimap = BiHashSet::<char, i32>::with_hashers(s_left, s_right);
         bimap.insert('a', 42);
         assert_eq!(Some(&'a'), bimap.get_by_right(&42));
         assert_eq!(Some(&42), bimap.get_by_left(&'a'));
@@ -1090,7 +1090,7 @@ mod tests {
 
     #[test]
     fn reserve() {
-        let mut bimap = BiHashMap::<char, i32>::new();
+        let mut bimap = BiHashSet::<char, i32>::new();
         assert!(bimap.is_empty());
         assert_eq!(bimap.len(), 0);
         assert_eq!(bimap.capacity(), 0);
@@ -1103,7 +1103,7 @@ mod tests {
 
     #[test]
     fn shrink_to_fit() {
-        let mut bimap = BiHashMap::<char, i32>::with_capacity(100);
+        let mut bimap = BiHashSet::<char, i32>::with_capacity(100);
         assert!(bimap.is_empty());
         assert_eq!(bimap.len(), 0);
         assert!(bimap.capacity() >= 100);
@@ -1122,7 +1122,7 @@ mod tests {
 
     #[test]
     fn shrink_to() {
-        let mut bimap = BiHashMap::<char, i32>::with_capacity(100);
+        let mut bimap = BiHashSet::<char, i32>::with_capacity(100);
         assert!(bimap.is_empty());
         assert_eq!(bimap.len(), 0);
         assert!(bimap.capacity() >= 100);
@@ -1146,7 +1146,7 @@ mod tests {
 
     #[test]
     fn clear() {
-        let mut bimap = vec![('a', 1)].into_iter().collect::<BiHashMap<_, _>>();
+        let mut bimap = vec![('a', 1)].into_iter().collect::<BiHashSet<_, _>>();
         assert_eq!(bimap.len(), 1);
         assert!(!bimap.is_empty());
 
@@ -1158,7 +1158,7 @@ mod tests {
 
     #[test]
     fn get_contains() {
-        let bimap = vec![('a', 1)].into_iter().collect::<BiHashMap<_, _>>();
+        let bimap = vec![('a', 1)].into_iter().collect::<BiHashSet<_, _>>();
 
         assert_eq!(bimap.get_by_left(&'a'), Some(&1));
         assert!(bimap.contains_left(&'a'));
@@ -1175,7 +1175,7 @@ mod tests {
 
     #[test]
     fn insert() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
 
         assert_eq!(bimap.insert('a', 1), Overwritten::Neither);
         assert_eq!(bimap.insert('a', 2), Overwritten::Left('a', 1));
@@ -1188,7 +1188,7 @@ mod tests {
 
     #[test]
     fn insert_no_overwrite() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
 
         assert!(bimap.insert_no_overwrite('a', 1).is_ok());
         assert!(bimap.insert_no_overwrite('a', 2).is_err());
@@ -1197,7 +1197,7 @@ mod tests {
 
     #[test]
     fn retain_calls_f_once() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 1);
         bimap.insert('b', 2);
         bimap.insert('c', 3);

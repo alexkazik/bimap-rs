@@ -1,5 +1,5 @@
 //! Implementations of `serde::Serialize` and `serde::Deserialize` for
-//! `BiHashMap` and `BiBTreeMap`.
+//! `BiHashSet` and `BiBTreeMap`.
 //!
 //! You do not need to import anything from this module to use this
 //! functionality, simply enable the `serde` feature in your dependency
@@ -11,12 +11,12 @@
 //! You can easily serialize and deserialize bimaps with any serde-compatbile
 //! serializer or deserializer.
 //!
-//! Serializing and deserializing a [`BiHashMap`]:
+//! Serializing and deserializing a [`BiHashSet`]:
 //!
 //! ```
-//! # use bimap::BiHashMap;
+//! # use bimap::BiHashSet;
 //! // create a new bimap
-//! let mut map = BiHashMap::new();
+//! let mut map = BiHashSet::new();
 //!
 //! // insert some pairs
 //! map.insert('A', 1);
@@ -58,13 +58,13 @@
 //! `Serialize` and `Deserialize` respectively:
 //!
 //! ```compile_fail
-//! # use bimap::BiHashMap;
+//! # use bimap::BiHashSet;
 //! // this type doesn't implement Serialize or Deserialize!
 //! #[derive(PartialEq, Eq, Hash)]
 //! enum MyEnum { A, B, C }
 //!
 //! // create a bimap and add some pairs
-//! let mut map = BiHashMap::new();
+//! let mut map = BiHashSet::new();
 //! map.insert(MyEnum::A, 1);
 //! map.insert(MyEnum::B, 2);
 //! map.insert(MyEnum::C, 3);
@@ -85,7 +85,7 @@
 //! any conflicting pairs*, leading to non-deterministic results.
 //! ```
 //! # use std::collections::HashMap;
-//! # use bimap::BiHashMap;
+//! # use bimap::BiHashSet;
 //! // construct a regular map
 //! let mut map = HashMap::new();
 //!
@@ -99,7 +99,7 @@
 //! let json = serde_json::to_string(&map).unwrap();
 //!
 //! // deserialize it into a bimap
-//! let bimap: BiHashMap<char, i32> = serde_json::from_str(&json).unwrap();
+//! let bimap: BiHashSet<char, i32> = serde_json::from_str(&json).unwrap();
 //!
 //! // deserialization succeeds, but the bimap is now in a non-deterministic
 //! // state - either ('B', 2) or ('C', 2) will have been overwritten while
@@ -118,9 +118,9 @@
 //!
 //! ```
 //! # use std::collections::HashMap;
-//! # use bimap::BiHashMap;
+//! # use bimap::BiHashSet;
 //! // construct a bimap
-//! let mut bimap = BiHashMap::new();
+//! let mut bimap = BiHashSet::new();
 //!
 //! // insert some pairs
 //! bimap.insert('A', 1);
@@ -140,11 +140,11 @@
 //! assert_eq!(map[&'B'], 2);
 //! assert_eq!(map[&'C'], 3);
 //! ```
-//! [`BiHashMap`]: crate::BiHashMap
+//! [`BiHashSet`]: crate::BiHashSet
 //! [`BiBTreeMap`]: crate::BiBTreeMap
 //! [`HashMap`]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
 
-use crate::{BiBTreeMap, BiHashMap};
+use crate::{BiBTreeMap, BiHashSet};
 use serde::{
     de::{MapAccess, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
@@ -156,8 +156,8 @@ use std::{
     marker::PhantomData,
 };
 
-/// Serializer for `BiHashMap`
-impl<L, R, LS, RS> Serialize for BiHashMap<L, R, LS, RS>
+/// Serializer for `BiHashSet`
+impl<L, R, LS, RS> Serialize for BiHashSet<L, R, LS, RS>
 where
     L: Serialize + Eq + Hash,
     R: Serialize + Eq + Hash,
@@ -169,12 +169,12 @@ where
     }
 }
 
-/// Visitor to construct `BiHashMap` from serialized map entries
-struct BiHashMapVisitor<L, R, LS, RS> {
-    marker: PhantomData<BiHashMap<L, R, LS, RS>>,
+/// Visitor to construct `BiHashSet` from serialized map entries
+struct BiHashSetVisitor<L, R, LS, RS> {
+    marker: PhantomData<BiHashSet<L, R, LS, RS>>,
 }
 
-impl<'de, L, R, LS, RS> Visitor<'de> for BiHashMapVisitor<L, R, LS, RS>
+impl<'de, L, R, LS, RS> Visitor<'de> for BiHashSetVisitor<L, R, LS, RS>
 where
     L: Deserialize<'de> + Eq + Hash,
     R: Deserialize<'de> + Eq + Hash,
@@ -185,15 +185,15 @@ where
         write!(f, "a map")
     }
 
-    type Value = BiHashMap<L, R, LS, RS>;
+    type Value = BiHashSet<L, R, LS, RS>;
     fn visit_map<A: MapAccess<'de>>(self, mut entries: A) -> Result<Self::Value, A::Error> {
         let mut map = match entries.size_hint() {
-            Some(s) => BiHashMap::<L, R, LS, RS>::with_capacity_and_hashers(
+            Some(s) => BiHashSet::<L, R, LS, RS>::with_capacity_and_hashers(
                 s,
                 LS::default(),
                 RS::default(),
             ),
-            None => BiHashMap::<L, R, LS, RS>::with_hashers(LS::default(), RS::default()),
+            None => BiHashSet::<L, R, LS, RS>::with_hashers(LS::default(), RS::default()),
         };
         while let Some((l, r)) = entries.next_entry()? {
             map.insert(l, r);
@@ -202,8 +202,8 @@ where
     }
 }
 
-/// Deserializer for `BiHashMap`
-impl<'de, L, R, LS, RS> Deserialize<'de> for BiHashMap<L, R, LS, RS>
+/// Deserializer for `BiHashSet`
+impl<'de, L, R, LS, RS> Deserialize<'de> for BiHashSet<L, R, LS, RS>
 where
     L: Deserialize<'de> + Eq + Hash,
     R: Deserialize<'de> + Eq + Hash,
@@ -211,7 +211,7 @@ where
     RS: BuildHasher + Default,
 {
     fn deserialize<D: Deserializer<'de>>(de: D) -> Result<Self, D::Error> {
-        de.deserialize_map(BiHashMapVisitor::<L, R, LS, RS> {
+        de.deserialize_map(BiHashSetVisitor::<L, R, LS, RS> {
             marker: PhantomData::default(),
         })
     }
@@ -273,7 +273,7 @@ mod tests {
 
     #[test]
     fn serde_hash() {
-        let mut bimap = BiHashMap::new();
+        let mut bimap = BiHashSet::new();
         bimap.insert('a', 1);
         bimap.insert('b', 2);
         bimap.insert('c', 3);
@@ -287,7 +287,7 @@ mod tests {
     #[test]
     fn serde_hash_w_fnv_hasher() {
         let hasher_builder = BuildHasherDefault::<fnv::FnvHasher>::default();
-        let mut bimap = BiHashMap::<
+        let mut bimap = BiHashSet::<
             char,
             u8,
             BuildHasherDefault<fnv::FnvHasher>,
@@ -308,7 +308,7 @@ mod tests {
     #[test]
     fn serde_hash_w_hashbrown_hasher() {
         let hasher_builder = hashbrown::hash_map::DefaultHashBuilder::default();
-        let mut bimap = BiHashMap::<
+        let mut bimap = BiHashSet::<
             char,
             u8,
             hashbrown::hash_map::DefaultHashBuilder,
@@ -351,8 +351,8 @@ mod tests {
 
     #[test]
     fn expecting_hash() {
-        let visitor = BiHashMapVisitor {
-            marker: PhantomData::<BiHashMap<char, i32>>,
+        let visitor = BiHashSetVisitor {
+            marker: PhantomData::<BiHashSet<char, i32>>,
         };
         let error_str = format!("{:?}", visitor.visit_bool::<Error>(true));
         let expected = "Err(Error(\"invalid type: boolean `true`, expected a map\"))";
